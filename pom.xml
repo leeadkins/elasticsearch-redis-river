@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <name>redis-river</name>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.elasticsearch</groupId>
+    <artifactId>redis-river</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <elasticsearch.version>0.17.7</elasticsearch.version>
+    </properties>
+    
+    <repositories>
+        <repository>
+            <id>oss.sonatype.org</id>
+            <name>OSS Sonatype</name>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <url>http://oss.sonatype.org/content/repositories/releases/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+    			<groupId>log4j</groupId>
+    			<artifactId>log4j</artifactId>
+    			<version>1.2.16</version>
+    		</dependency>
+    		<dependency>
+    			<groupId>junit</groupId>
+    			<artifactId>junit</artifactId>
+    			<version>4.8.2</version>
+    		</dependency>
+    		<dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.0.0</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>  		
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>${elasticsearch.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- Create a zip file according to elasticsearch naming scheme -->
+        <plugins>
+            <plugin>
+      				<groupId>org.apache.maven.plugins</groupId>
+      				<artifactId>maven-dependency-plugin</artifactId>
+      				<version>2.3</version>
+      				<executions>
+      					<execution>
+      						<id>copy-dependencies</id>
+      						<phase>package</phase>
+      						<goals>
+      							<goal>copy-dependencies</goal>
+      						</goals>
+      						<configuration>
+      							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+      						</configuration>
+      					</execution>
+      				</executions>
+      			</plugin>
+            <plugin>
+      				<groupId>org.apache.maven.plugins</groupId>
+      				<artifactId>maven-surefire-plugin</artifactId>
+      				<version>2.9</version>
+      				<configuration>
+      					<additionalClasspathElements>
+      						<additionalClasspathElement>${project.build.directory}/classes/conf</additionalClasspathElement>
+      						<additionalClasspathElement>${project.build.directory}/lib</additionalClasspathElement>
+      					</additionalClasspathElements>
+      				</configuration>
+      			</plugin>
+  					<!-- Generate the release zip file (run during package step) -->
+      			<plugin>
+      				<groupId>org.apache.maven.plugins</groupId>
+      				<artifactId>maven-assembly-plugin</artifactId>
+      				<version>2.2.1</version>
+      				<configuration>
+      					<appendAssemblyId>false</appendAssemblyId>
+      					<finalName>elasticsearch-${project.name}-${elasticsearch.version}</finalName>
+      					<outputDirectory>${project.build.directory}/release/redis-river</outputDirectory>
+      					<descriptors>
+      						<descriptor>${basedir}/src/main/assemblies/esplugin.xml</descriptor>
+      					</descriptors>
+      				</configuration>
+      				<executions>
+      					<execution>
+      						<id>generate-release-plugin</id>
+      						<phase>package</phase>
+      						<goals>
+      							<goal>single</goal>
+      						</goals>
+      					</execution>
+      				</executions>
+      			</plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>1.6</source>
+                        <target>1.6</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
