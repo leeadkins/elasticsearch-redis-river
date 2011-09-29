@@ -11,20 +11,20 @@ import org.elasticsearch.river.redis.RedisRiverModule;
  */
 
 public class RedisRiverPlugin extends AbstractPlugin {
-  @Inject public RedisRiverPlugin(){
-  }
-  
-  @Override public String name(){
-    return "river-redis";
-  }
-  
-  @Override public String description(){
-    return "Redis River Plugin";
-  }
-  
-  @Override public void processModule(Module module){
-    if(module instanceof RiversModule){
-      ((RiversModule) module).registerRiver("redis", RedisRiverModule.class);
-    }
-  }
+	@Inject public RedisRiverPlugin(){
+	}
+	
+	@Override public String name(){
+		return "river-redis";
+	}
+	
+	@Override public String description(){
+		return "Redis River Plugin";
+	}
+	
+	@Override public void processModule(Module module){
+		if(module instanceof RiversModule){
+			((RiversModule) module).registerRiver("redis", RedisRiverModule.class);
+		}
+	}
 }

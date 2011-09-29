@@ -21,23 +21,23 @@ import redis.clients.jedis.Jedis;
  */
  
 public class RedisRiverTest {
-  
-  private static Node node;
-  
-  private static Jedis jedis;
-  
-  @BeforeClass
-  public static void setupTest() throws Exception {
-    jedis = new Jedis("localhost");
-  }
-  
-  @Test
-  public void canConnect() throws Exception {
-    assertNotNull(jedis);
-  }
-  
-  @Test
-  public void canPush() throws Exception {
-    assertNotNull(jedis);
-  }
+	
+	private static Node node;
+	
+	private static Jedis jedis;
+	
+	@BeforeClass
+	public static void setupTest() throws Exception {
+		jedis = new Jedis("localhost");
+	}
+	
+	@Test
+	public void canConnect() throws Exception {
+		assertNotNull(jedis);
+	}
+	
+	@Test
+	public void canPush() throws Exception {
+		assertNotNull(jedis);
+	}
 }

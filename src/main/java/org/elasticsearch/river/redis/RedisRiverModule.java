@@ -8,7 +8,7 @@ import org.elasticsearch.river.River;
  */
  
 public class RedisRiverModule extends AbstractModule {
-  @Override protected void configure(){
-    bind(River.class).to(RedisRiver.class).asEagerSingleton();
-  }
+ 	@Override protected void configure(){
+		bind(River.class).to(RedisRiver.class).asEagerSingleton();
+	}
 }
