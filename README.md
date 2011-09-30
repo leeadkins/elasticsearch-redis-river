@@ -1,10 +1,9 @@
 This river, and thus its documentation, is still in development.
 It is, however, under active development, so expect this space
-to change frequently.  Once it's at a stable enough place for use by
-people other than me (which should be any day now), I'll throw
-a ZIP of it into the Downloads section so you can do a standard
-Elastic Search plugin install on it.
+to change frequently.
 
+Using a Redis List is ready to use, but I'm still polishing up
+PubSub. Sorry for the delay, but it shouldn't be much longer now.
 
 # Elastic Search Redis River
 
@@ -14,7 +13,14 @@ with Redis.
 
 You can get stuff into ES two ways with this river:
  - Push to a Redis List
- - Use Redis PubSub
+ - Use Redis PubSub (Soon, but not yet!)
+ 
+ 
+## INSTALLATION
+
+Fromm ES_HOME:
+
+bin/plugin install leeadkins/elasticsearch-redis-river/0.0.1
 
 ## USAGE
 	  	curl -XPUT 'localhost:9200/_river/my_redis_river/_meta' -d '{
