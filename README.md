@@ -7,7 +7,7 @@ PubSub. Sorry for the delay, but it shouldn't be much longer now.
 
 # Elastic Search Redis River
 
-This is a simple River that utilizes the same Bulk API used 
+This is a simple River that utilizes the same [Bulk API](http://www.elasticsearch.org/guide/reference/api/bulk.html) used 
 in Elastic Search REST requests and the RabbitMQ River, but
 with Redis.
 
