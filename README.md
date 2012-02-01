@@ -18,18 +18,19 @@ You can get stuff into ES two ways with this river:
  
 ## INSTALLATION
 
-Fromm ES_HOME:
+From ES_HOME:
 
-bin/plugin install leeadkins/elasticsearch-redis-river/0.0.1
+bin/plugin -install leeadkins/elasticsearch-redis-river/0.0.3
 
 ## USAGE
 	  	curl -XPUT 'localhost:9200/_river/my_redis_river/_meta' -d '{
 		    "type" : "redis",
 		    "redis" : {
-		        "host" : "localhost", 
-		        "port" : 6379,
-		        "key"  : "redis_key_or_channel",
-		        "mode" : "list_or_pubsub"
+		        "host"     : "localhost", 
+		        "port"     : 6379,
+		        "key"      : "redis_key_or_channel",
+		        "mode"     : "list_or_pubsub",
+		        "database" : 0
 		    },
 		    "index" : {
 		        "bulk_size" : 100,
@@ -39,8 +40,11 @@ bin/plugin install leeadkins/elasticsearch-redis-river/0.0.1
 
 
 Create your river using the standard river PUT request. Your options are:
+ - host:         Redis host
+ - port:         Redis port
  - key:          The Redis key to poll or Redis PubSub channel to subscribe to.
  - mode:         list or pubsub
+ - database:     (OPTIONAL) The Redis database number to use. Zero indexed, make sure you've properly setup your redis.conf if using more than 16 DBs.
  - bulk_size:    the maximum number of items to queue up before indexing.
  - bulk_timeout: the time (in seconds) to wait for more items before indexing.
 

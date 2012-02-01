@@ -57,10 +57,11 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 	private volatile JedisPool jedisPool;
 	
 	/* Redis Related things */
-	private final String redisHost;
-	private final int    redisPort;
-	private final String redisKey;
-	private final String redisMode;
+	private final String  redisHost;
+	private final int     redisPort;
+	private final String  redisKey;
+	private final String  redisMode;
+	private final int     redisDB;
 
 
 	private final int bulkSize;
@@ -80,11 +81,13 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 			redisPort = XContentMapValues.nodeIntegerValue(redisSettings.get("port"), 6379);
 			redisKey  = XContentMapValues.nodeStringValue(redisSettings.get("key"), "redis_river");
 			redisMode = XContentMapValues.nodeStringValue(redisSettings.get("mode"), "list");
+			redisDB   = XContentMapValues.nodeIntegerValue(redisSettings.get("database"), 0);
 		} else {
 			redisHost = "localhost";
 			redisPort = 6379;
 			redisKey  = "redis_river";
 			redisMode = "list";
+			redisDB   = 0;
 		}
 		
 		if(settings.settings().containsKey("index")){
@@ -157,6 +160,9 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 
 			try {
 				this.jedis = jedisPool.getResource();
+				if(redisDB > 0) {
+				  this.jedis.select(redisDB);
+				}
 			} catch (Exception e) {
 				logger.warn("Unable to connect to redis...");
 				return;
@@ -259,8 +265,11 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 		private void loop() {
 			List<String> response;
 			try {
-				this.jedis = jedisPool.getResource();  
-				response = jedis.blpop(bulkTimeout, redisKey);  
+				this.jedis = jedisPool.getResource();
+				if(redisDB > 0) {
+				  jedis.select(redisDB);
+				}
+				response = jedis.blpop(bulkTimeout, redisKey);
 			} catch (Exception e) {
 				// Can't get a redis object. Return and
 				// try again on the next loop.
