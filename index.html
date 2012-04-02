@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=640" />
+
+    <link rel="stylesheet" href="stylesheets/core.css" media="screen"/>
+    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-device-width:640px)"/>
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+
+    <script type="text/javascript" src="javascripts/modernizr.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="javascripts/headsmart.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $('#main_content').headsmart()
+      })
+    </script>
+    <title>Elasticsearch-redis-river by leeadkins</title>
+  </head>
+
+  <body>
+    <a id="forkme_banner" href="https://github.com/leeadkins/elasticsearch-redis-river">Fork Me on GitHub</a>
+    <div class="shell">
+
+      <header>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <h1>Elasticsearch-redis-river</h1>
+            <h2>A Redis River for Elastic Search.</h2>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+      </header>
+
+      <section id="downloads">
+        <span class="inner">
+          <a href="https://github.com/leeadkins/elasticsearch-redis-river/zipball/master" class="zip"><em>download</em> .ZIP</a><a href="https://github.com/leeadkins/elasticsearch-redis-river/tarball/master" class="tgz"><em>download</em> .TGZ</a>
+        </span>
+      </section>
+
+      <span class="banner-fix"></span>
+
+      <section id="main_content">
+        <p>This river, and thus its documentation, is still in development.
+It is, however, under active development, so expect this space
+to change frequently.</p>
+
+<p>Using a Redis List is ready to use, but I'm still polishing up
+PubSub. Sorry for the delay, but it shouldn't be much longer now.</p>
+
+<h1>Elastic Search Redis River</h1>
+
+<p>This is a simple River that utilizes the same <a href="http://www.elasticsearch.org/guide/reference/api/bulk.html">Bulk API</a> used 
+in Elastic Search REST requests and the RabbitMQ River, but
+with Redis.</p>
+
+<p>You can get stuff into ES two ways with this river:
+ - Push to a Redis List
+ - Use Redis PubSub (Soon, but not yet!)</p>
+
+<h2>INSTALLATION</h2>
+
+<p>From ES_HOME:</p>
+
+<p>bin/plugin -install leeadkins/elasticsearch-redis-river/0.0.3</p>
+
+<h2>USAGE</h2>
+
+<pre><code>    curl -XPUT 'localhost:9200/_river/my_redis_river/_meta' -d '{
+        "type" : "redis",
+        "redis" : {
+            "host"     : "localhost", 
+            "port"     : 6379,
+            "key"      : "redis_key_or_channel",
+            "mode"     : "list_or_pubsub",
+            "database" : 0
+        },
+        "index" : {
+            "bulk_size" : 100,
+            "bulk_timeout" : 5
+        }
+    }'
+</code></pre>
+
+<p>Create your river using the standard river PUT request. Your options are:
+ - host:         Redis host
+ - port:         Redis port
+ - key:          The Redis key to poll or Redis PubSub channel to subscribe to.
+ - mode:         list or pubsub
+ - database:     (OPTIONAL) The Redis database number to use. Zero indexed, make sure you've properly setup your redis.conf if using more than 16 DBs.
+ - bulk_size:    the maximum number of items to queue up before indexing.
+ - bulk_timeout: the time (in seconds) to wait for more items before indexing.</p>
+
+<h2>Using a Redis List</h2>
+
+<p>The first time you send something to be indexed to Redis (either list or pubsub),
+the river start preparing a bulk request. This request will be executed once it
+reaches the bulk size or after the bulk_timeout passes, whichever is first.</p>
+
+<p>Setting the bulk_timeout to 0 when using a list doesn't mean that it won't wait.
+It means that it will not timeout a bulk request. In other words, it will always
+wait for enough messages to fill the bulk_size. To acheive the effect of not waiting for
+anything while using a list, you could set both the bulk timeout and the bulk size
+to 0, which would tell the river to send every single index request through automatically.
+This probably isn't the best for performance purposes.</p>
+
+<h2>Using Redis PubSub</h2>
+
+<p>More info coming soon.</p>
+      </section>
+
+      <footer>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <p>this project by <a href="https://github.com/leeadkins">leeadkins</a> can be found on <a href="https://github.com/leeadkins/elasticsearch-redis-river">GitHub</a></p>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+        <p>Generated with <a href="http://pages.github.com">GitHub Pages</a> using Merlot</p>
+        <span class="octocat"></span>
+      </footer>
+
+    </div>
+
+    
+  </body>
+</html>
