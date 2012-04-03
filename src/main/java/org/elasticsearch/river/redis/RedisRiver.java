@@ -99,6 +99,7 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 			bulkTimeout = 5;   
 		}
 
+		if(logger.isInfoEnabled()) logger.info("Configured Redis connection {}:{}/{} DB={} bulkSize={} bulkTimeout={}", redisHost, redisPort, redisKey, redisDB, bulkSize, bulkTimeout);
 	}
 
 
@@ -112,7 +113,7 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 		} catch (Exception e) {
 			// We can't connect to redis for some reason, so
 			// let's not even try to finish this.
-			logger.warn("Unable to allocate redis pool. Disabling River.");
+			logger.error("Unable to allocate redis pool. Disabling River.");
 			return;
 		}
 
@@ -122,10 +123,10 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 			thread = EsExecutors.daemonThreadFactory(settings.globalSettings(), "redis_listener").newThread(new RedisListRunner());
 		} else if (redisMode.equalsIgnoreCase("pubsub")){
 			//thread = EsExecutors.daemonThreadFactory(settings.globalSettings(), "redis_listener").newThread(new RedisPubSubRunner());
-			logger.warn("Not implemented");
+			logger.error("PubSub mode not implemented yet. Switch to list mode.");
 			return;
 		} else {
-			logger.warn("Invalid redis river mode specified. Please check your river settings and try again.");
+			logger.error("Invalid redis river mode specified. Please check your river settings and try again.");
 			return;
 		}
 			
@@ -164,12 +165,11 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 				  this.jedis.select(redisDB);
 				}
 			} catch (Exception e) {
-				logger.warn("Unable to connect to redis...");
+				logger.error("Unable to connect to redis...");
 				return;
 			}
 
-			logger.info("Is about to subscribe to");
-			logger.info(redisKey);
+			if(logger.isDebugEnabled()) logger.debug("Is about to subscribe to [{}]", redisKey);
 			this.jedis.subscribe(new RiverListener(), redisKey);
 
 
@@ -183,7 +183,7 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 
 
 		private void processBulkIfNeeded(Boolean force) {
-			logger.warn("Attempting to process bulk");
+			logger.info("Attempting to process bulk");
 			if(updating){ return; }
 			updating = true;
 
@@ -195,15 +195,15 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 					// zombie threads that hang out after it's done either.
 					BulkResponse response = currentRequest.execute().actionGet();
 					if(response.hasFailures()){
-						logger.warn("failed to execute" + response.buildFailureMessage());
+						logger.error("failed to execute" + response.buildFailureMessage());
 					}
 				} catch(Exception e) {
-					logger.warn("Failed to process bulk", e);
+					logger.error("Failed to process bulk", e);
 				}
 			 currentRequest = client.prepareBulk();
 			}
 			updating = false;
-			logger.warn("Ending bulk process");
+			logger.info("Ending bulk process");
 		}
 
 		private class BulkWatcher implements Runnable {
@@ -217,13 +217,13 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 
 			private void queueMessage(String message){
 				try {
-					logger.warn("About to add a message...");
+					if(logger.isDebugEnabled()) logger.debug("About to add a message...");
 					byte[] data = message.getBytes();
 					currentRequest.add(data, 0, data.length, false);
-					logger.warn("Current size" + currentRequest.numberOfActions());
+					if(logger.isDebugEnabled()) logger.debug("Current size" + currentRequest.numberOfActions());
 					processBulkIfNeeded(false);
 				} catch (Exception e){
-					logger.warn("Unable to build request");
+					logger.error("Unable to build request");
 				}
 
 			}
@@ -252,7 +252,7 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 
 		@Override
 		public void run() {
-			logger.info("Opening up another new thread...");
+			logger.info("Starting Redis list consumer...");
 
 			while(true){
 				if(closed){
@@ -269,6 +269,7 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 				if(redisDB > 0) {
 				  jedis.select(redisDB);
 				}
+				if(logger.isDebugEnabled()) logger.debug("Blocking on queue pop...");
 				response = jedis.blpop(bulkTimeout, redisKey);
 			} catch (Exception e) {
 				// Can't get a redis object. Return and
@@ -286,13 +287,15 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 			
 			if(response != null){
 				try {
+					if(logger.isDebugEnabled()) logger.debug("Popped from queue: {}", response);
 					byte[] data = response.get(1).getBytes();
 					currentRequest.add(data, 0, data.length, false);
 					processBulkIfNeeded(false);
 				} catch (Exception e){
-					logger.warn("Unable to build request");
+					logger.error("Unable to build request");
 				} 
 			} else {
+				if(logger.isDebugEnabled()) logger.debug("Nothing popped. Timed out.");
 				processBulkIfNeeded(true);
 			}
 			jedisPool.returnResource(this.jedis);
@@ -303,17 +306,19 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 			int actionCount = currentRequest.numberOfActions();
 			if(actionCount != 0 && (actionCount > bulkSize || force == true)){
 				try{
+					if(logger.isDebugEnabled()) logger.debug("Executing bulk request: actionCount={} bulkSize={} force={}", actionCount, bulkSize, force);
 					BulkResponse response = currentRequest.execute().actionGet();
 					if(response.hasFailures()){
-						logger.warn("failed to execute" + response.buildFailureMessage());
+						logger.error("failed to execute" + response.buildFailureMessage());
 					}
 				} catch(Exception e) {
-					logger.warn("Failed to process bulk", e);
+					logger.error("Failed to process bulk", e);
 				}
-			 currentRequest = client.prepareBulk();
+				currentRequest = client.prepareBulk();
+			} else if(logger.isDebugEnabled()) {
+				logger.debug("Deferring bulk execution: actionCount={} bulkSize={}", actionCount, bulkSize, force);
 			}
 		}
-				
 	}
 }
 
