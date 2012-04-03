@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.elasticsearch</groupId>
     <artifactId>redis-river</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <packaging>jar</packaging>
 
     <properties>
-        <elasticsearch.version>0.17.7</elasticsearch.version>
+        <elasticsearch.version>0.19.1</elasticsearch.version>
     </properties>
     
     <repositories>
