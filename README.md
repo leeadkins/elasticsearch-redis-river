@@ -20,7 +20,11 @@ You can get stuff into ES two ways with this river:
 
 From ES_HOME:
 
-bin/plugin -install leeadkins/elasticsearch-redis-river/0.0.3
+If you're using ElasticSearch 0.19.1 or better, use version 0.0.4
+
+bin/plugin -install leeadkins/elasticsearch-redis-river/0.0.4
+
+Older versions are still available on the Downloads page if you need them.
 
 ## USAGE
 	  	curl -XPUT 'localhost:9200/_river/my_redis_river/_meta' -d '{
