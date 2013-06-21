@@ -11,7 +11,7 @@ Once you've constructed your bulk indexing command, you can push it into the Red
 
 For ElasticSearch v0.20.x, you can install it by doing the following:
 
-bin/plugin -install -url https://github.com/downloads/leeadkins/elasticsearch-redis-river/elasticsearch-redis-river-0.0.4.zip
+bin/plugin -install redis-river -url https://github.com/downloads/leeadkins/elasticsearch-redis-river/elasticsearch-redis-river-0.0.4.zip
 
 For older versions, use:
 
