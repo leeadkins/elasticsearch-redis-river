@@ -1,6 +1,6 @@
 # Elastic Search Redis River
 
-This is a simple River that utilizes the same [Bulk API](http://www.elasticsearch.org/guide/reference/api/bulk.html) used 
+This is a simple River that utilizes the same [Bulk API](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/docs-bulk.html) used 
 in Elastic Search REST requests and the RabbitMQ River, but
 with Redis.
 
