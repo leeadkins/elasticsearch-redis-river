@@ -39,6 +39,7 @@ import java.util.Map;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.JedisPoolConfig;
 
 /**
  * @author leeadkins
@@ -62,6 +63,7 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 	private final String  redisKey;
 	private final String  redisMode;
 	private final int     redisDB;
+	private final String  redisPsw;
 
 
 	private final int bulkSize;
@@ -82,12 +84,14 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 			redisKey  = XContentMapValues.nodeStringValue(redisSettings.get("key"), "redis_river");
 			redisMode = XContentMapValues.nodeStringValue(redisSettings.get("mode"), "list");
 			redisDB   = XContentMapValues.nodeIntegerValue(redisSettings.get("database"), 0);
+			redisPsw  = XContentMapValues.nodeIntegerValue(redisSettings.get("password"), null);
 		} else {
 			redisHost = "localhost";
 			redisPort = 6379;
 			redisKey  = "redis_river";
 			redisMode = "list";
 			redisDB   = 0;
+			redisPws  = null;
 		}
 		
 		if(settings.settings().containsKey("index")){
@@ -109,7 +113,7 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 
 		// Next, we'll try to connect our redis pool
 		try {
-			this.jedisPool = new JedisPool(this.redisHost, this.redisPort);  
+			this.jedisPool = new JedisPool(new JedisPoolConfig(), this.redisHost, this.redisPort, 0, this.redisPsw, this.redisDB);
 		} catch (Exception e) {
 			// We can't connect to redis for some reason, so
 			// let's not even try to finish this.
