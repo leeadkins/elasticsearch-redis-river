@@ -12,8 +12,9 @@ I chose the Bulk API because I needed the flexibilty of dumping lots of differen
 
 This isn't in Maven. I rely on Github Releases, so you'll need to do this:
 
-bin/plugin -install redis-river -url https://github.com/downloads/leeadkins/elasticsearch-redis-river/elasticsearch-redis-river-0.0.5.zip
-
+```
+bin/plugin -install redis-river -url https://github.com/leeadkins/elasticsearch-redis-river/releases/download/v0.0.5/elasticsearch-redis-river-0.0.5.zip
+```
 
 
 Don't forget to restart the node before trying to use it.
