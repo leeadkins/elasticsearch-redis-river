@@ -84,14 +84,14 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 			redisKey  = XContentMapValues.nodeStringValue(redisSettings.get("key"), "redis_river");
 			redisMode = XContentMapValues.nodeStringValue(redisSettings.get("mode"), "list");
 			redisDB   = XContentMapValues.nodeIntegerValue(redisSettings.get("database"), 0);
-			redisPsw  = XContentMapValues.nodeIntegerValue(redisSettings.get("password"), null);
+			redisPsw  = XContentMapValues.nodeStringValue(redisSettings.get("password"), null);
 		} else {
 			redisHost = "localhost";
 			redisPort = 6379;
 			redisKey  = "redis_river";
 			redisMode = "list";
 			redisDB   = 0;
-			redisPws  = null;
+			redisPsw  = null;
 		}
 		
 		if(settings.settings().containsKey("index")){
@@ -165,9 +165,6 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 
 			try {
 				this.jedis = jedisPool.getResource();
-				if(redisDB > 0) {
-				  this.jedis.select(redisDB);
-				}
 			} catch (Exception e) {
 				logger.error("Unable to connect to redis...");
 				return;
@@ -279,7 +276,9 @@ public class RedisRiver extends AbstractRiverComponent implements River {
 				// Can't get a redis object. Return and
 				// try again on the next loop.
 				if(logger.isInfoEnabled()) logger.info("Can't read from redis. Waiting 5 seconds and trying again.");
-				jedisPool.returnBrokenResource(this.jedis);
+				if(this.jedis != null) {
+					jedisPool.returnBrokenResource(this.jedis);
+				}
 				try {
 					Thread.sleep(5000);
 				} catch(InterruptedException e1) {

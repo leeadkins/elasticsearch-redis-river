@@ -6,16 +6,15 @@ with Redis.
 
 Once you've constructed your bulk indexing command, you can push it into the Redis list specified when the river was created.
  
+I chose the Bulk API because I needed the flexibilty of dumping lots of different things into the same place while indexing. If you're looking for the easiest way to just index some JSON, you might be interested in the newer [elasticsearch-river-redis](https://github.com/sksamuel/elasticsearch-river-redis). I'm not affiliated with that project, but it's definitely more straightforward if you're just trying to get some JSON into a single index.
  
 ## INSTALLATION
 
-For ElasticSearch v0.20.x, you can install it by doing the following:
+This isn't in Maven. I rely on Github Releases, so you'll need to do this:
 
-bin/plugin -install redis-river -url https://github.com/downloads/leeadkins/elasticsearch-redis-river/elasticsearch-redis-river-0.0.4.zip
+bin/plugin -install redis-river -url https://github.com/downloads/leeadkins/elasticsearch-redis-river/elasticsearch-redis-river-0.0.5.zip
 
-For older versions, use:
 
-bin/plugin -install leeadkins/elasticsearch-redis-river/0.0.4
 
 Don't forget to restart the node before trying to use it.
 
@@ -27,6 +26,7 @@ Don't forget to restart the node before trying to use it.
 		        "port"     : 6379,
 		        "key"      : "redis_key",
 		        "mode"     : "list",
+		        "password" : "yourpassword",
 		        "database" : 0
 		    },
 		    "index" : {
@@ -41,6 +41,7 @@ Create your river using the standard river PUT request. Your options are:
  - port:         Redis port
  - key:          The Redis key to poll or Redis PubSub channel to subscribe to.
  - mode:         list only for now
+ - password:     (OPTIONAL) Your password, if your redis-server is password protected.
  - database:     (OPTIONAL) The Redis database number to use. Zero indexed, make sure you've properly setup your redis.conf if using more than 16 DBs.
  - bulk_size:    the maximum number of items to queue up before indexing.
  - bulk_timeout: the time (in seconds) to wait for more items before indexing.
@@ -58,3 +59,12 @@ wait for enough messages to fill the bulk_size. To acheive the effect of not wai
 anything while using a list, you could set both the bulk timeout and the bulk size
 to 0, which would tell the river to send every single index request through automatically.
 This probably isn't the best for performance purposes.
+
+
+## Example
+
+As mentioned above, this particular river uses the Bulk API. If you're in a redis-cli console, and you have a river setup like the above example, this redis command should put something in your elasticsearch node.
+
+```
+LPUSH redis_key "{\"index\":{\"_index\":\"analytics\",\"_type\":\"analytic\",\"_id\":1}}\n{\"id\":1,\"age\":25,\"name\":\"My Name\"}\n"
+```
